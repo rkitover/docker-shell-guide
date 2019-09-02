@@ -278,7 +278,7 @@ docker-shell development/ubuntu:latest
 ```
 
 in this case during initial setup you would commit the image to
-`rkitover/development/ubuntu:latest`.
+`$USER/development/ubuntu:latest`.
 
 ### Miscellaneous
 
