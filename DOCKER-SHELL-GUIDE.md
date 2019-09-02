@@ -29,7 +29,7 @@ On linux, you will want to add yourself to the `docker` group and
 reboot/relogin, and enable the docker service:
 
 ```bash
-sudo usermod -a -G docker rkitover
+sudo usermod -a -G docker $USER
 sudo systemctl enable --now docker
 ```
 
