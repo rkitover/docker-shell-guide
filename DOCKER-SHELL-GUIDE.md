@@ -280,11 +280,13 @@ You can commit images to any tag or prefix with this script, and they will be
 stored under your user namespace. E.g.:
 
 ```bash
-docker-shell development/ubuntu:latest
+docker-shell development/ubuntu:bionic
 ```
 
 in this case during initial setup you would commit the image to
-`$USER/development/ubuntu:latest`.
+`$USER/development/ubuntu:bionic`.
+
+Keep the tags distinct because this script uses the tag as the container name.
 
 ### Miscellaneous
 
