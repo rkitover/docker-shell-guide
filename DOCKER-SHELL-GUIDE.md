@@ -30,7 +30,7 @@ reboot/relogin, and enable the docker service:
 
 ```bash
 sudo usermod -a -G docker $USER
-sudo systemctl enable --now docker
+sudo systemctl enable --now docker.service
 ```
 
 Once you are logged back in, use the:
