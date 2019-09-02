@@ -9,7 +9,7 @@ internet of course.
 ### What is Docker?
 
 Docker is a container system, it runs a linux system as a filesystem (image)
-using your existing linux operating system on linux. On other OSes, it shares a
+using your existing linux operating system. On other OSes, it shares a
 lightweight linux virtual machine between your different linux containers.
 
 ### Install Docker
