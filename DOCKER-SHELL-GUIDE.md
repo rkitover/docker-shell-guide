@@ -194,7 +194,7 @@ Put this script in your `~/bin` or wherever you keep such things, name it
 image=$1
 shift
 
-name=$(echo $image | sed 's/.*://')
+name=${image##*:}
 
 container_exists() {
     [ -n "$(docker ps -q -a -f "name=$name" "$@" 2>/dev/null)" ]
