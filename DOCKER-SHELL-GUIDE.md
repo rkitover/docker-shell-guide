@@ -190,7 +190,7 @@ Put the following script in your `~/bin` or wherever you keep such things:
 ```bash
 mkdir -p ~/bin
 cd ~/bin
-curl -LO 'https://gist.githubusercontent.com/rkitover/fdf8bc9ca55248752507336d580f7dbb/raw/9b793aa1d9a51548c147005154845b792d340124/docker-shell'
+curl -LO 'https://gist.githubusercontent.com/rkitover/fdf8bc9ca55248752507336d580f7dbb/raw/c2238caf8954cfecb231f0daba52edbfbaf32b7e/docker-shell'
 chmod +x docker-shell
 ```
 
