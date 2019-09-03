@@ -87,7 +87,7 @@ What this command does:
 - the `-t` option allocates a tty
 
 - `ubuntu:disco` is the image name on the docker hub, local image names will be
-  checked first
+  checked first. The `:disco` part is the "tag", often a version or codename etc..
 
 - the rest is the command to run, in this case a `bash` login shell
 
@@ -285,8 +285,6 @@ docker-shell development/ubuntu:bionic
 
 in this case during initial setup you would commit the image to
 `$USER/development/ubuntu:bionic`.
-
-Keep the tags distinct because this script uses the tag as the container name.
 
 ### Miscellaneous
 
