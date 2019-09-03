@@ -200,7 +200,7 @@ chmod +x docker-shell
 image=$1
 shift
 
-name=${image##*:}
+name=$(echo "$image" | sed 's,[/:],_,g')
 
 container_exists() {
     [ -n "$(docker ps -q -a -f "name=$name" "$@" 2>/dev/null)" ]
