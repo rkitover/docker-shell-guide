@@ -1,3 +1,22 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
+
+- [Using Docker for Testing and Development on any Linux Distribution](#using-docker-for-testing-and-development-on-any-linux-distribution)
+  - [What is Docker?](#what-is-docker)
+  - [Install Docker](#install-docker)
+  - [Configure Docker](#configure-docker)
+  - [Docker Images](#docker-images)
+  - [Initial Setup](#initial-setup)
+  - [Some Environment Tweaks for Docker](#some-environment-tweaks-for-docker)
+  - [The `docker-shell` script](#the-docker-shell-script)
+  - [Entering the Environment](#entering-the-environment)
+  - [Deflating images](#deflating-images)
+  - [Miscellaneous](#miscellaneous)
+  - [Have Fun!](#have-fun)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 ## Using Docker for Testing and Development on any Linux Distribution
 
 I will describe how to use docker to help you run shells in arbitrary linux
