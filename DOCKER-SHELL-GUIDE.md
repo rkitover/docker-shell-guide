@@ -286,6 +286,30 @@ docker-shell development/ubuntu:bionic
 in this case during initial setup you would commit the image to
 `$USER/development/ubuntu:bionic`.
 
+### Deflating images
+
+Docker images are overlays, and if you do something like an OS upgrade in an image, instead of just recreating the image based on a newer image from the hub, which is a completely valid alternative, you image size will grow much much bigger. You can see your image sizes with `docker image list`.
+
+To remove intermediate images and greatly reduce your image size, follow this procedure:
+
+- Start a shell in an image, I will use `fedora:latest` as an example.
+
+- In another terminal, export the image:
+
+```bash
+docker export fedora_latest | gzip -c > image.tar.gz
+```
+
+- Exit the shell in the image to remove the container.
+
+- Then replace your image with it:
+
+```bash
+gunzip -c image.tar.gz | docker import - rkitover/fedora:latest
+```
+
+- Check again in `docker image list` and you will see that the image size is drastically reduced, often in half or more.
+
 ### Miscellaneous
 
 You may want to install a cron job to clean up dangling images and dead
