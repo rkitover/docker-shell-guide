@@ -288,6 +288,8 @@ in this case during initial setup you would commit the image to
 
 ### Deflating images
 
+This section based on: https://tuhrig.de/flatten-a-docker-container-or-image/
+
 Docker images are overlays, and if you do something like an OS upgrade in an image, instead of just recreating the image based on a newer image from the hub, which is a completely valid alternative, you image size will grow much much bigger. You can see your image sizes with `docker image list`.
 
 To remove intermediate images and greatly reduce your image size, follow this procedure:
@@ -306,6 +308,7 @@ docker export fedora_latest | gzip -c > image.tar.gz
 
 ```bash
 gunzip -c image.tar.gz | docker import - rkitover/fedora:latest
+rm image.tar.gz
 ```
 
 - Check again in `docker image list` and you will see that the image size is drastically reduced, often in half or more.
