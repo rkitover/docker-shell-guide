@@ -1,0 +1,40 @@
+#!/bin/sh
+
+image=$1
+shift
+
+name=$(echo "$image" | sed 's,[/:],_,g')
+
+container_exists() {
+    [ -n "$(docker ps -q -a -f "name=$name" "$@" 2>/dev/null)" ]
+}
+
+set -- \
+    -e DISPLAY="$DISPLAY" \
+    -e XDG_RUNTIME_DIR="$XDG_RUNTIME_DIR" \
+    "$@"
+
+# If running, exec another shell in the container.
+if container_exists; then
+    exec docker exec \
+        --detach-keys="ctrl-@" \
+        "$@" \
+        -it -u $USER "$name" bash -l
+fi
+
+# Otherwise launch a new container.
+docker run --name "$name" -h "$name" \
+    "$@" \
+    -v /tmp/.X11-unix:/tmp/.X11-unix \
+    -v /run/user/$(id -u):/run/user/$(id -u) \
+    --device=/dev/dri \
+    -v "$HOME":"$HOME" \
+    --detach-keys="ctrl-@" \
+    -it -u $USER $USER/"$image" bash -l
+
+# After the main shell exits, commit image and remove container.
+if container_exists -f "status=exited"; then
+    docker commit "$name" $USER/"$image"
+
+    docker rm "$name"
+fi

@@ -9,11 +9,11 @@
   - [Docker Images](#docker-images)
   - [Initial Setup](#initial-setup)
   - [Some Environment Tweaks for Docker](#some-environment-tweaks-for-docker)
-  - [The `docker-shell` script](#the-docker-shell-script)
+  - [The `docker-shell` script (Linux)](#the-docker-shell-script-linux)
+  - [The docker-shell powershell module (Windows)](#the-docker-shell-powershell-module-windows)
   - [Entering the Environment](#entering-the-environment)
   - [Deflating images](#deflating-images)
   - [Miscellaneous](#miscellaneous)
-  - [Have Fun!](#have-fun)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -52,6 +52,11 @@ sudo usermod -a -G docker $USER
 sudo systemctl enable --now docker.service
 ```
 
+**WARNING:** This is considered insecure, for an alternative installation
+method using sudo see:
+
+https://docs.docker.com/install/linux/linux-postinstall/
+
 Once you are logged back in, use the:
 
 ```bash
@@ -68,7 +73,7 @@ than a traditional VM.
 
 ### Docker Images
 
-Now that you have taken care of the preliminaries, I wil describe how to run
+Now that you have taken care of the preliminaries, I will describe how to run
 shells in arbitrary linux distributions. For the purposes of this guide, I am
 using my username `rkitover`, which you will substitute for your own.
 
@@ -111,11 +116,11 @@ What this command does:
 - the rest is the command to run, in this case a `bash` login shell
 
 Now you are going to do some setup to use the image as a development/testing
-environemnt. You would do something similar for other distributions, depending
+environment. You would do something similar for other distributions, depending
 on your needs and the needed commands.
 
 ```bash
-useradd rkitover
+useradd rkitover # for windows add: -g 0
 apt update
 apt -y upgrade
 apt -y install vim tmux tree git build-essential cmake silversearcher-ag sudo locales
@@ -130,6 +135,9 @@ That should be good, add your user, install some packages (most importantly sudo
 and locales), add yourself to sudo, generate locales.
 
 Make sure your `UID` is the same as on the host, generally `1000`.
+
+On Windows you will want to pass `-g 0` to `useradd` because your profile
+directory will be mounted as root.
 
 Notice that you did not set up a home directory, that's because you are going to
 use the docker volumes feature to mount your existing host home directory inside
@@ -168,8 +176,9 @@ Now running `docker ps -a` again will show an empty table.
 
 ### Some Environment Tweaks for Docker
 
-You need to make some changes to your host `$HOME` configuration for shells in
-docker to work properly. These changes are harmless.
+You need to make some changes to your host `$HOME` configuration (your profile
+directory on Windows, same as `~` in powershell) for shells in docker to work
+properly. These changes are harmless.
 
 Edit your `~/.bash_profile`, at the top put:
 
@@ -202,7 +211,27 @@ if ! grep -q docker /proc/1/cgroup; then
 fi
 ```
 
-### The `docker-shell` script
+For Windows I suggest adding the following:
+
+```bash
+# Remove background colors from dircolors.
+eval "$(
+    dircolors -p | \
+    sed 's/ 4[0-9];/ 01;/; s/;4[0-9];/;01;/g; s/;4[0-9] /;01 /' > /tmp/dircolors_$$ && \
+    dircolors /tmp/dircolors_$$ && \
+    rm /tmp/dircolors_$$
+)"
+
+if [ "$(uname -s)" = Linux ]; then
+    [ -d /run/tmux ] || sudo mkdir -m 0777 /run/tmux
+
+    rm -f ~/.viminfo # cannot write to msys2/cygwin viminfo
+fi
+```
+
+### The `docker-shell` script (Linux)
+
+See below for Windows powershell script.
 
 Put the following script in your `~/bin` or wherever you keep such things:
 
@@ -230,7 +259,7 @@ set -- \
     -e XDG_RUNTIME_DIR="$XDG_RUNTIME_DIR" \
     "$@"
 
-# if running, exec another shell in the container
+# If running, exec another shell in the container.
 if container_exists; then
     exec docker exec \
         --detach-keys="ctrl-@" \
@@ -238,7 +267,7 @@ if container_exists; then
         -it -u $USER "$name" bash -l
 fi
 
-# otherwise launch a new container
+# Otherwise launch a new container.
 docker run --name "$name" -h "$name" \
     "$@" \
     -v /tmp/.X11-unix:/tmp/.X11-unix \
@@ -248,7 +277,7 @@ docker run --name "$name" -h "$name" \
     --detach-keys="ctrl-@" \
     -it -u $USER $USER/"$image" bash -l
 
-# after the main shell exits, commit image and remove container
+# After the main shell exits, commit image and remove container.
 if container_exists -f "status=exited"; then
     docker commit "$name" $USER/"$image"
 
@@ -265,6 +294,77 @@ Some notes:
 
 - the `--device` option passes through a host device, this particular setup will
   allow running X apps with GPU acceleration on many setups, more on that later
+
+### The docker-shell powershell module (Windows)
+
+Quick install:
+
+```powershell
+mkdir ~/source/repos
+cd ~/source/repos
+git clone https://github.com/rkitover/docker-shell-guide.git
+cd
+echo "`r`nImport-Module ~/source/repos/docker-shell-guide/docker-shell.psm1" >> $profile
+```
+
+then launch a new shell.
+
+Here is the source:
+
+```powershell
+function TestContainerExists {
+    $name,$args = $args
+    (docker ps -q -a -f "name=$name" $args 2>$null | measure -line).lines -gt 0
+}
+
+function OpenDockerShell {
+    $image,$args = $args
+
+    $name = $image -replace '[/:]','_'
+
+# If running, exec another shell in the container.
+    if (TestContainerExists $name) {
+        docker exec `
+            "--detach-keys=ctrl-@" `
+            $args `
+            -it -u $env:UserName $name bash -l
+        return
+    }
+
+# Otherwise launch a new container.
+    docker run --name $name -h $name `
+        $args `
+        -v "$((Get-Item ~).FullName):/home/$env:UserName" `
+        --detach-keys="ctrl-@" `
+        -it -u $env:UserName "$env:UserName/$image" bash -l
+
+# After the main shell exits, commit image and remove container.
+    if (TestContainerExists $name -f "status=exited") {
+        docker commit $name "$env:UserName/$image"
+
+        docker rm $name
+    }
+}
+
+Set-Alias -name docker-shell -val OpenDockerShell
+
+Export-ModuleMember -Function OpenDockerShell -Alias docker-shell
+```
+
+please no rotten tomatoes, I am just learning powershell and this is all a work
+in progress.
+
+This gives you the `docker-shell` alias, which works like the unix script.
+
+I highly recommend using powershell-preview and windows-terminal-preview for
+this or anything else having to do with powershell.
+
+Your images should work mostly fine if you followed the instructions above, you
+may need to make some tweaks in `~/.bashrc` etc. since on Windows your profile
+folder will be mounted as root.
+
+You also don't get X11 support until I figure out how that works and if it's
+feasible.
 
 ### Entering the Environment
 
@@ -309,9 +409,13 @@ in this case during initial setup you would commit the image to
 
 This section based on: https://tuhrig.de/flatten-a-docker-container-or-image/
 
-Docker images are overlays, and if you do something like an OS upgrade in an image, instead of just recreating the image based on a newer image from the hub, which is a completely valid alternative, you image size will grow much much bigger. You can see your image sizes with `docker image list`.
+Docker images are overlays, and if you do something like an OS upgrade in an
+image, instead of just recreating the image based on a newer image from the
+hub, which is a completely valid alternative, you image size will grow much
+much bigger. You can see your image sizes with `docker image list`.
 
-To remove intermediate images and greatly reduce your image size, follow this procedure:
+To remove intermediate images and greatly reduce your image size, follow this
+procedure:
 
 - Start a shell in an image, I will use `fedora:latest` as an example.
 
@@ -330,7 +434,8 @@ gunzip -c image.tar.gz | docker import - rkitover/fedora:latest
 rm image.tar.gz
 ```
 
-- Check again in `docker image list` and you will see that the image size is drastically reduced, often in half or more.
+- Check again in `docker image list` and you will see that the image size is
+  drastically reduced, often in half or more.
 
 ### Miscellaneous
 
@@ -351,10 +456,3 @@ To use GPU acceleration for X11 apps, install the `mesa-utils` package or
 equivalent, and more on that here:
 
 http://wiki.ros.org/docker/Tutorials/Hardware%20Acceleration
-
-### Have Fun!
-
-Now when a user complains "your software doesn't work on my distribution X" you
-have a powerful recourse to investigate the problem.
-
-There are endless possibilities with this software.
