@@ -230,6 +230,8 @@ if [ "$(uname -s)" = Linux ]; then
 
     rm -f ~/.viminfo # cannot write to msys2/cygwin viminfo
 fi
+
+alias ls="ls -h --color=auto --hide='ntuser.*' --hide='NTUSER.*'"
 ```
 
 ### The `docker-shell` script (Linux)
