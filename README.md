@@ -71,6 +71,9 @@ CPU count for your virtual machine and log into the hub. Be generous with your
 allotment, but keep in mind that the docker VM generally needs fewer resources
 than a traditional VM.
 
+On Windows you will also need to share the `C` drive, or whichever drive has
+your profile directory, as that will be your linux home directory.
+
 ### Docker Images
 
 Now that you have taken care of the preliminaries, I will describe how to run
@@ -356,8 +359,8 @@ in progress.
 
 This gives you the `docker-shell` alias, which works like the unix script.
 
-I highly recommend using powershell-preview and windows-terminal-preview for
-this or anything else having to do with powershell.
+I highly recommend using the powershell-preview and microsoft-windows-terminal
+chocolatey packages for this or anything else having to do with powershell.
 
 Your images should work mostly fine if you followed the instructions above, you
 may need to make some tweaks in `~/.bashrc` etc. since on Windows your profile
