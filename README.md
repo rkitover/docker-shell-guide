@@ -243,7 +243,7 @@ Put the following script in your `~/bin` or wherever you keep such things:
 ```bash
 mkdir -p ~/bin
 cd ~/bin
-curl -LO 'https://gist.githubusercontent.com/rkitover/fdf8bc9ca55248752507336d580f7dbb/raw/c2238caf8954cfecb231f0daba52edbfbaf32b7e/docker-shell'
+curl -LO 'https://raw.githubusercontent.com/rkitover/docker-shell-guide/master/docker-shell'
 chmod +x docker-shell
 ```
 
