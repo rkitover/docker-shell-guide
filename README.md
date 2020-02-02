@@ -437,6 +437,7 @@ docker export fedora_latest | gzip -c > image.tar.gz
 ```bash
 gunzip -c image.tar.gz | docker import - rkitover/fedora:latest
 rm image.tar.gz
+docker image prune -f
 ```
 
 - Check again in `docker image list` and you will see that the image size is
